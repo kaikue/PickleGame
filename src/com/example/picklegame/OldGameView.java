@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -154,7 +155,7 @@ public class OldGameView extends SurfaceView implements SurfaceHolder.Callback {
             int height) {
         thread.setSurfaceSize(width, height);
     }
-
+    
     /*
      * Callback invoked when the Surface has been created and is ready to be
      * used.

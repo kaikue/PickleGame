@@ -1,6 +1,7 @@
 package com.example.picklegame;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 public class Player {
 	
@@ -20,12 +21,14 @@ public class Player {
 	
 	public void update(boolean updown, double gravity, int maxFallSpeed) {
 		if(updown) {
+			Log.d("PickleGame", "Moving up");
 			yVel += liftIncrement - gravity;
 			if(yVel > maxRiseSpeed) {
 				yVel = maxRiseSpeed;
 		    }
 		}
 		else {
+			Log.d("PickleGame", "Moving down");
 			yVel -= gravity;
 			if(yVel < -maxFallSpeed) {
 				yVel = -maxFallSpeed;
