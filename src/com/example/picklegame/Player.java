@@ -21,19 +21,20 @@ public class Player {
 	
 	public void update(boolean updown, double gravity, int maxFallSpeed) {
 		if(updown) {
-			Log.d("PickleGame", "Moving up");
+			//Log.d("PickleGame", "Moving up");
 			yVel += liftIncrement - gravity;
 			if(yVel > maxRiseSpeed) {
 				yVel = maxRiseSpeed;
 		    }
 		}
 		else {
-			Log.d("PickleGame", "Moving down");
+			//Log.d("PickleGame", "Moving down");
 			yVel -= gravity;
 			if(yVel < -maxFallSpeed) {
 				yVel = -maxFallSpeed;
 			}
 			y -= yVel;
 		}
+	Log.println(1, "PickleGame", "" + yVel);
 	}
 }

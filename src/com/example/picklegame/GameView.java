@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -29,6 +30,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private Player player;
         private ArrayList<Wall> terrain;
         private boolean updown;
+        private int touchAction;
 		
 		public GameThread(SurfaceHolder surfaceHolder, Context context) {
 			
@@ -141,13 +143,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	@Override
     public boolean onTouchEvent(MotionEvent event) {
-		if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
+		thread.touchAction = event.getAction();
+		switch (thread.touchAction) {
+		case MotionEvent.ACTION_UP:
+			thread.updown = true;
+			break;
+		case MotionEvent.ACTION_DOWN:
+			thread.updown = false;
+			break;
+		}
+		//Log.d("PickleGame", "" + thread.updown);
+			
+		/*if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
 			thread.updown = true;
 		} else if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
 			thread.updown = false;
-		}
+		}*/
         
-    	return false;
+    	return true;
     }
 	
     /* Callback invoked when the surface dimensions change. */
