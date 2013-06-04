@@ -98,7 +98,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             
             canvas.drawBitmap(player.image, player.x, player.y, null);
             for(Wall wall : terrain) {
-            	canvas.drawBitmap(wall.image, wall.x, wall.y, null);
+            	canvas.drawBitmap(wall.image, wall.x, wall.y - 4 * wall.height, null);
+            	canvas.drawBitmap(wall.image, wall.x, wall.y + 4 * wall.height, null);
             }
             
         }
@@ -146,10 +147,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		thread.touchAction = event.getAction();
 		switch (thread.touchAction) {
 		case MotionEvent.ACTION_UP:
-			thread.updown = true;
+			thread.updown = false;
 			break;
 		case MotionEvent.ACTION_DOWN:
-			thread.updown = false;
+			thread.updown = true;
 			break;
 		}
 		//Log.d("PickleGame", "" + thread.updown);

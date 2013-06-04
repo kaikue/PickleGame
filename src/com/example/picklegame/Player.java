@@ -33,8 +33,8 @@ public class Player {
 			if(yVel < -maxFallSpeed) {
 				yVel = -maxFallSpeed;
 			}
-			y -= yVel;
 		}
-	Log.println(1, "PickleGame", "" + yVel);
+		y -= yVel;
+	Log.d("PickleGame", "updown: " + updown + " yvel: " + yVel);
 	}
 }
