@@ -8,6 +8,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -31,6 +33,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private ArrayList<Wall> terrain;
         private boolean updown;
         private int touchAction;
+        private boolean playing;
         
         private boolean collisionCheck1;
         private boolean collisionCheck2;
@@ -55,6 +58,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             player.x = mCanvasWidth / 4;
             player.y = mCanvasHeight / 3;
             updown = false;
+            playing = true;
         }
 		
 		public void setRunning(boolean b) {
@@ -104,7 +108,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             	canvas.drawBitmap(wall.image, wall.x, wall.y - 4 * wall.height, null);
             	canvas.drawBitmap(wall.image, wall.x, wall.y + 4 * wall.height, null);
             }
-            
+            if(!playing) {
+                Paint paint = new Paint();
+                paint.setStyle(Paint.Style.FILL_AND_STROKE);
+                paint.setColor(Color.BLACK);
+            	canvas.drawText("Touch to restart", mCanvasWidth / 2, mCanvasHeight / 2, paint);
+            }
         }
 		
 		private boolean getCollision(GameObject obj1, GameObject obj2) {
@@ -119,34 +128,44 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 		
 		private void update() {
-			if(terrain == null) {
-				terrain = new ArrayList<Wall>();
-	            int x = 0;
-	            for(int i = 0; i < mCanvasWidth / 32 + 3; i++) {
-	            	Wall wall = new Wall(wallImage, x, mCanvasHeight - 64, wallImage.getWidth(), wallImage.getHeight(), i);
-	            	terrain.add(wall);
-	            	x += 32;
-	            }
-			}
-			
-			player.update(updown, gravity, maxFallSpeed);
-			for(Wall wall : terrain) {
-				wall.update(terrain, scrollspeed);
-			}
-			
-			//check for collisions
-			for (Wall wall : terrain) {
-				player.y -= 4 * wall.height;
-				collisionCheck1 = getCollision(player,wall);
-				player.y += 8 * wall.height;
-				collisionCheck2 = getCollision(player,wall);
-				player.y -= 4 * wall.height;
-				if (collisionCheck1 || collisionCheck2) {
-					Log.d("PickleGame", "HEY" + new Random().nextInt(64));
+			if(playing) {
+				if(terrain == null) {
+					terrain = new ArrayList<Wall>();
+		            int x = 0;
+		            for(int i = 0; i < mCanvasWidth / 32 + 3; i++) {
+		            	Wall wall = new Wall(wallImage, x, mCanvasHeight - 64, wallImage.getWidth(), wallImage.getHeight(), i);
+		            	terrain.add(wall);
+		            	x += 32;
+		            }
+				}
+				
+				player.update(updown, gravity, maxFallSpeed);
+				for(Wall wall : terrain) {
+					wall.update(terrain, scrollspeed);
+				}
+				
+				//check for collisions
+				for (Wall wall : terrain) {
+					player.y -= 4 * wall.height;
+					collisionCheck1 = getCollision(player,wall);
+					player.y += 8 * wall.height;
+					collisionCheck2 = getCollision(player,wall);
+					player.y -= 4 * wall.height;
+					if (collisionCheck1 || collisionCheck2) {
+						//Log.d("PickleGame", "HEY" + new Random().nextInt(64));
+						playing = false;
+					}
 				}
 			}
 		}
 		
+		private void restart() {
+			terrain = null;
+			player.x = mCanvasWidth / 4;
+            player.y = mCanvasHeight / 3;
+            updown = false;
+            playing = true;
+		}
 	}
 	
 	private GameThread thread;
@@ -177,6 +196,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			break;
 		case MotionEvent.ACTION_DOWN:
 			thread.updown = true;
+			if(!thread.playing) {
+				thread.restart();
+			}
 			break;
 		}
 		//Log.d("PickleGame", "" + thread.updown);
