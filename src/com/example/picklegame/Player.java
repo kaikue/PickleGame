@@ -3,10 +3,10 @@ package com.example.picklegame;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-public class Player {
+public class Player extends GameObject {
 	
-	public Bitmap image;
-	public int x, y;
+	//public Bitmap image;
+	//public int x, y;
 	private double yVel, liftIncrement, maxRiseSpeed;
 	
 	public Player(Bitmap image, int scrollSpeed, int speedAdjust) {
@@ -35,6 +35,6 @@ public class Player {
 			}
 		}
 		y -= yVel;
-	Log.d("PickleGame", "updown: " + updown + " yvel: " + yVel);
+	//Log.d("PickleGame", "updown: " + updown + " yvel: " + yVel);
 	}
 }

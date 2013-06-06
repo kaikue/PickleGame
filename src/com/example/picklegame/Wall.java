@@ -5,10 +5,11 @@ import java.util.Random;
 
 import android.graphics.Bitmap;
 
-public class Wall {
+public class Wall extends GameObject {
 	
-	public int x, y, width, height, index;
-	public Bitmap image;
+	//public int x, y, 
+	public int width, height, index;
+	//public Bitmap image;
 	
 	public Wall(Bitmap image, int x, int y, int width, int height, int index) {
 		this.image = image;

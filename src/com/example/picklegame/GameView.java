@@ -31,6 +31,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private ArrayList<Wall> terrain;
         private boolean updown;
         private int touchAction;
+        
+        private boolean collisionCheck1;
+        private boolean collisionCheck2;
 		
 		public GameThread(SurfaceHolder surfaceHolder, Context context) {
 			
@@ -104,6 +107,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             
         }
 		
+		private boolean getCollision(GameObject obj1, GameObject obj2) {
+		//if(obj1.boundingBox.intersects(obj2.boundingBox))
+			//Log.d("PickleGame", "x1: " + obj1.x + "x2: " + obj2.x + "y1: " + obj1.y + "y2: " + obj2.y);
+			if ( ((obj1.x > obj2.x && obj2.x + obj2.image.getWidth() > obj1.x) || (obj2.x > obj1.x && obj1.x + obj1.image.getWidth() > obj2.x))
+			&& ((obj1.y > obj2.y && obj2.y + obj2.image.getHeight() > obj1.y) || (obj2.y > obj1.y && obj1.y + obj1.image.getHeight() > obj2.y)) ) {
+				return true;
+			}
+				
+			return false;
+		}
+		
 		private void update() {
 			if(terrain == null) {
 				terrain = new ArrayList<Wall>();
@@ -118,6 +132,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			player.update(updown, gravity, maxFallSpeed);
 			for(Wall wall : terrain) {
 				wall.update(terrain, scrollspeed);
+			}
+			
+			//check for collisions
+			for (Wall wall : terrain) {
+				player.y -= 4 * wall.height;
+				collisionCheck1 = getCollision(player,wall);
+				player.y += 8 * wall.height;
+				collisionCheck2 = getCollision(player,wall);
+				player.y -= 4 * wall.height;
+				if (collisionCheck1 || collisionCheck2) {
+					Log.d("PickleGame", "HEY" + new Random().nextInt(64));
+				}
 			}
 		}
 		
