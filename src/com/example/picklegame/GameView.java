@@ -37,6 +37,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         
         private boolean collisionCheck1;
         private boolean collisionCheck2;
+        private boolean justStarted;
 		
 		public GameThread(SurfaceHolder surfaceHolder, Context context) {
 			
@@ -55,10 +56,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             maxFallSpeed += speedAdjust; //manual adjustment since it is not relative to scrollspeed for now
             gravity += (0.05 * speedAdjust); //manual adjustment since it is not relative to scrollspeed for now
             player = new Player(playerImage, scrollspeed, speedAdjust);
+            Log.d("PickleGame", "player y 1: " + "" + player.y);
             player.x = mCanvasWidth / 4;
-            player.y = mCanvasHeight / 3;
+            player.y = (int)(mCanvasHeight / 2.0);
+            Log.d("PickleGame", "player y 2: " + "" + player.y);
             updown = false;
             playing = true;
+            justStarted = true;
         }
 		
 		public void setRunning(boolean b) {
@@ -104,9 +108,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             canvas.drawBitmap(backgroundImage, 0, 0, null);
             
             canvas.drawBitmap(player.image, player.x, player.y, null);
-            for(Wall wall : terrain) {
-            	canvas.drawBitmap(wall.image, wall.x, wall.y - 4 * wall.height, null);
-            	canvas.drawBitmap(wall.image, wall.x, wall.y + 4 * wall.height, null);
+            if (terrain != null) {
+	            for(Wall wall : terrain) {
+	            	canvas.drawBitmap(wall.image, wall.x, wall.y - 4 * wall.height, null);
+	            	canvas.drawBitmap(wall.image, wall.x, wall.y + 4 * wall.height, null);
+	            }
             }
             if(!playing) {
                 Paint paint = new Paint();
@@ -129,11 +135,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		
 		private void update() {
 			if(playing) {
+				if (justStarted == true) {
+					justStarted = false;
+					restart();
+				}
 				if(terrain == null) {
 					terrain = new ArrayList<Wall>();
 		            int x = 0;
 		            for(int i = 0; i < mCanvasWidth / 32 + 3; i++) {
-		            	Wall wall = new Wall(wallImage, x, mCanvasHeight - 64, wallImage.getWidth(), wallImage.getHeight(), i);
+		            	Wall wall = new Wall(wallImage, x, mCanvasHeight - 256, wallImage.getWidth(), wallImage.getHeight(), i);
 		            	terrain.add(wall);
 		            	x += 32;
 		            }
@@ -162,7 +172,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		private void restart() {
 			terrain = null;
 			player.x = mCanvasWidth / 4;
-            player.y = mCanvasHeight / 3;
+            player.y = (int)(mCanvasHeight / 2.0);
             updown = false;
             playing = true;
 		}

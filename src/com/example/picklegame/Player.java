@@ -11,7 +11,7 @@ public class Player extends GameObject {
 	
 	public Player(Bitmap image, int scrollSpeed, int speedAdjust) {
 		this.image = image;
-		y = 0;
+		//y = 0;
 		yVel = 0;
 		liftIncrement = .1 * scrollSpeed; //ONLY INITIALIZED ONCE REGARDLESS OF CHANGE IN SCROLLSPEED
 		maxRiseSpeed = .75 * scrollSpeed; //ONLY INITIALIZED ONCE REGARDLESS OF CHANGE IN SCROLLSPEED
