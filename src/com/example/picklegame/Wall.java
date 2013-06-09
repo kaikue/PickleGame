@@ -30,11 +30,11 @@ public class Wall extends GameObject {
             x += (32 * terrain.size());
             int othery = getNeighbor(terrain, index).y;
             y = othery + new Random().nextInt(64) - 32;
-            if(y < 320) {
-                y = 320;
+            if(y < -128) {
+                y = -128;
             }
-            if(y > 448) {
-                y = 448;
+            if(y > 128) {
+                y = 128;
             }
         }
 	}

@@ -7,7 +7,7 @@ public class Player extends GameObject {
 	
 	//public Bitmap image;
 	//public int x, y;
-	private double yVel, liftIncrement, maxRiseSpeed;
+	public double yVel, liftIncrement, maxRiseSpeed;
 	
 	public Player(Bitmap image, int scrollSpeed, int speedAdjust) {
 		this.image = image;
