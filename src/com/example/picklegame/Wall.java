@@ -20,9 +20,9 @@ public class Wall extends GameObject {
 		this.index = index;
 	}
 	
-	public boolean collides(int x1, int y1, int x2, int y2) {
+	/*public boolean collides(int x1, int y1, int x2, int y2) {
 		return x <= x2 && x1 <= x + width && y <= y2 && y1 <= y + height;
-	}
+	}*/
 	
 	public void update(ArrayList<Wall> terrain, int scrollspeed) {
         x -= scrollspeed;

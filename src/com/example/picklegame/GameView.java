@@ -15,12 +15,14 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.TextView;
+import android.widget.LinearLayout;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	
 	class GameThread extends Thread {
 		
-		private Bitmap backgroundImage, wallImage;
+		private Bitmap backgroundImage, wallImage, breadImage, goatImage;
 		private boolean mRun = false;
 		private SurfaceHolder mSurfaceHolder;
 		private int mCanvasHeight = 1;
@@ -31,14 +33,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private double gravity;
         private Player player;
         private ArrayList<Wall> terrain;
+        private ArrayList<Bread> collectables;
+        private ArrayList<Goat> enemies;
         private boolean updown;
         private int touchAction;
         private boolean playing;
-        
+		private double randomNum;
         private boolean collisionCheck1;
         private boolean collisionCheck2;
         private boolean justStarted;
         private int halfHeight = 0;
+        private double breadSpawnChancePercent = 20; //out of 1000 not 100
+        private double goatSpawnChancePercent = 7; //out of 1000 not 100
+        private TextView tv = new TextView(getContext());
+        private LinearLayout layout = new LinearLayout(getContext());
+        private int score = 0;
 		
 		public GameThread(SurfaceHolder surfaceHolder, Context context) {
 			
@@ -48,6 +57,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
             backgroundImage = BitmapFactory.decodeResource(res, R.drawable.background);
             wallImage = BitmapFactory.decodeResource(res, R.drawable.wall);
+            breadImage = BitmapFactory.decodeResource(res, R.drawable.pickup);
+            goatImage = BitmapFactory.decodeResource(res, R.drawable.enemy);
             Bitmap playerImage = BitmapFactory.decodeResource(res, R.drawable.player);
             
             speedAdjust = 1; //shouldnt be needed but will use as currently on the fence between 2 styles
@@ -64,6 +75,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             updown = false;
             playing = true;
             justStarted = true;
+            
+            tv.setText("Score: 0");
+            layout.addView(tv);
+            
+            //int breadLuckTimer = (int)(40 / (scrollspeed/4)); //UPDATED MANUALLY WHEN SCROLLSPEED IS CHANGED
+            //int sheepLuckTimer = (int)(70 / (scrollspeed/4)); //UPDATED MANUALLY WHEN SCROLLSPEED IS CHANGED
         }
 		
 		public void setRunning(boolean b) {
@@ -86,6 +103,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	    public void run() {
 	        while (mRun) {
 	            Canvas c = null;
+	             
 	            try {
 	                c = mSurfaceHolder.lockCanvas(null);
 	                synchronized (mSurfaceHolder) {
@@ -100,6 +118,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	                    mSurfaceHolder.unlockCanvasAndPost(c);
 	                }
 	            }
+	            
+	            layout.measure(c.getWidth(), c.getHeight());
+	            layout.layout(0, 0, c.getWidth(), c.getHeight());
 	        }
 	    }
 		
@@ -115,6 +136,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	            	canvas.drawBitmap(wall.image, wall.x, (wall.y + 4 * wall.height) + halfHeight, null);
 	            }
             }
+            
+            if (collectables != null) {
+	            for(Bread bread : collectables) {
+	            	canvas.drawBitmap(bread.image, bread.x, (bread.y) + halfHeight, null);
+	            }
+            }
+            if (enemies != null) {
+	            for(Goat goat : enemies) {
+	            	canvas.drawBitmap(goat.image, goat.x, (goat.y) + halfHeight, null);
+	            }
+            }
+            layout.draw(canvas);
+            
             if(!playing) {
                 Paint paint = new Paint();
                 paint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -144,6 +178,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 				if(terrain == null) {
 					terrain = new ArrayList<Wall>();
+					collectables = new ArrayList<Bread>();
+					enemies = new ArrayList<Goat>();
 		            int x = 0;
 		            for(int i = 0; i < mCanvasWidth / 32 + 3; i++) {
 		            	Wall wall = new Wall(wallImage, x, 0, wallImage.getWidth(), wallImage.getHeight(), i);
@@ -151,11 +187,40 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		            	x += 32;
 		            }
 				}
+				if (collectables == null) {
+					collectables = new ArrayList<Bread>();
+				}
+				if (enemies == null) {
+					enemies = new ArrayList<Goat>();
+				}
 				
 				player.update(updown, gravity, maxFallSpeed);
 				for(Wall wall : terrain) {
 					wall.update(terrain, scrollspeed);
 				}
+				for (int i = 0; i < collectables.size(); i++) {
+					if (collectables.get(i).update(scrollspeed) == true) {
+						collectables.remove(i);
+					}
+				}
+				
+				for (int i = 0; i < enemies.size(); i++) {
+					if (enemies.get(i).update(scrollspeed) == true) {
+						enemies.remove(i);
+					}
+				}
+				
+				randomNum = (int)(Math.random() * 1001);
+				if (randomNum < breadSpawnChancePercent) {
+					Bread bread = new Bread(breadImage, mCanvasWidth + 32,((-halfHeight / 2) + ((int)(Math.random() * (halfHeight)))), breadImage.getWidth(), breadImage.getHeight());
+					collectables.add(bread);
+				}
+				randomNum = (int)(Math.random() * 1001);
+				if (randomNum < goatSpawnChancePercent) {
+					Goat goat = new Goat(goatImage, mCanvasWidth + 32, ((-halfHeight / 2) + ((int)(Math.random() * (halfHeight)))), goatImage.getWidth(), goatImage.getHeight());
+					enemies.add(goat);
+				}
+				
 				
 				//check for collisions
 				for (Wall wall : terrain) {
@@ -169,16 +234,36 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 						playing = false;
 					}
 				}
+				for (int i = 0; i < collectables.size(); i++) {
+					collisionCheck1 = getCollision(player,collectables.get(i));
+					if (collisionCheck1 == true) {
+						collectables.remove(i);
+						score += 500;
+						tv.setText("Score: " + score);
+						//Log.d("PickleGame", "oh no!");
+					}
+				}
+				for (int i = 0; i < enemies.size(); i++) {
+					collisionCheck1 = getCollision(player,enemies.get(i));
+					if (collisionCheck1 == true) {
+						playing = false;
+					}
+				}
+				//Log.d("PickleGame", "" + collectables.size());
 			}
 		}
 		
 		private void restart() {
 			terrain = null;
+			collectables = null;
+			enemies = null;
 			player.x = mCanvasWidth / 4;
             player.y = 0;
             player.yVel = 0;
             updown = false;
             playing = true;
+            tv.setText("Score: 0");
+            score = 0;
 		}
 	}
 	
